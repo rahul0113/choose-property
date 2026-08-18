@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Check, Search, SlidersHorizontal, X } from "lucide-react";
-import { AVAILABILITY_LABELS, FACINGS, PROPERTY_TYPES, PROPERTY_TYPE_LABELS } from "@/lib/constants";
+import { AVAILABILITY_LABELS, FACINGS, PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PRESET_AMENITIES } from "@/lib/constants";
 import { track } from "@/lib/analytics";
 
 interface FilterDraft {
@@ -17,6 +18,8 @@ interface FilterDraft {
   electricity: boolean;
   water: boolean;
   drainage: boolean;
+  openSites: string;
+  amenities: string[];
 }
 
 const AREA_PRESETS = [
@@ -34,8 +37,21 @@ const ROAD_PRESETS = [
   { key: "40", label: "40+ ft" },
 ];
 
+const OPEN_SITES_PRESETS = [
+  { key: "", label: "Any" },
+  { key: "1", label: "1+" },
+  { key: "2", label: "2+" },
+  { key: "3", label: "3+" },
+];
+
 function one(v: string | string[] | undefined): string {
   return Array.isArray(v) ? v[0] ?? "" : v ?? "";
+}
+
+function getArray(v: string | string[] | undefined): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  return v.split(",").filter(Boolean);
 }
 
 export function FilterBar({
@@ -51,6 +67,8 @@ export function FilterBar({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [draft, setDraft] = useState<FilterDraft>(() => {
     const min = one(params.min_area);
     const max = one(params.max_area);
@@ -75,6 +93,8 @@ export function FilterBar({
       electricity: one(params.electricity) === "1",
       water: one(params.water) === "1",
       drainage: one(params.drainage) === "1",
+      openSites: one(params.open_sites),
+      amenities: getArray(params.amenities),
     };
   });
 
@@ -98,6 +118,8 @@ export function FilterBar({
     if (d.electricity) qs.set("electricity", "1");
     if (d.water) qs.set("water", "1");
     if (d.drainage) qs.set("drainage", "1");
+    if (d.openSites) qs.set("open_sites", d.openSites);
+    if (d.amenities.length > 0) qs.set("amenities", d.amenities.join(","));
 
     const target = qs.toString() ? `${basePath}?${qs.toString()}` : basePath;
     track({ event: "filter_used", meta: { filters: qs.toString() } });
@@ -106,7 +128,7 @@ export function FilterBar({
   };
 
   const reset = () => {
-    setDraft({ q: "", type: "", district: "", area: "", roadWidth: "", facing: "", availability: "", electricity: false, water: false, drainage: false });
+    setDraft({ q: "", type: "", district: "", area: "", roadWidth: "", facing: "", availability: "", electricity: false, water: false, drainage: false, openSites: "", amenities: [] });
     router.push(basePath);
     setOpen(false);
   };
@@ -138,11 +160,13 @@ export function FilterBar({
   );
 
   const sheet = (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Filters">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-label="Filters">
+      {/* Backdrop */}
       <button type="button" className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} aria-label="Close filters" />
-      <div className="absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-2xl bg-white shadow-sheet sm:inset-x-auto sm:right-4 sm:top-1/2 sm:bottom-auto sm:left-4 sm:max-h-[80vh] sm:-translate-y-1/2 sm:rounded-2xl">
-        <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-paper-line sm:hidden" aria-hidden />
-        <div className="flex items-center justify-between border-b border-paper-line px-5 py-3.5">
+      {/* Sheet panel */}
+      <div className="relative z-10 flex w-full flex-col rounded-t-2xl bg-white shadow-sheet sm:max-h-[90dvh] sm:w-[480px] sm:rounded-2xl max-h-[90dvh]">
+        <div className="mx-auto mt-2 h-1.5 w-12 shrink-0 rounded-full bg-paper-line sm:hidden" aria-hidden />
+        <div className="flex shrink-0 items-center justify-between border-b border-paper-line px-5 py-3.5">
           <h2 className="text-base font-semibold">Filters</h2>
           <button type="button" onClick={() => setOpen(false)} className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft hover:bg-paper-soft" aria-label="Close filters">
             <X className="h-5 w-5" aria-hidden />
@@ -219,17 +243,54 @@ export function FilterBar({
             </div>
           </section>
 
+          {/* Open sites filter */}
           <section className="mb-5">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Must-have utilities</h3>
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Open Sites Around Property</h3>
+            <div className="flex flex-wrap gap-2">
+              {OPEN_SITES_PRESETS.map((o) => (
+                <Chip key={o.key} active={draft.openSites === o.key} onClick={() => set("openSites", o.key)}>
+                  {o.label}
+                </Chip>
+              ))}
+            </div>
+          </section>
+
+          {/* Amenities & Utilities */}
+          <section className="mb-5">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Amenities & Utilities</h3>
             <div className="flex flex-wrap gap-2">
               <Toggle active={draft.electricity} onClick={() => set("electricity", !draft.electricity)} label="Electricity" />
               <Toggle active={draft.water} onClick={() => set("water", !draft.water)} label="Water" />
               <Toggle active={draft.drainage} onClick={() => set("drainage", !draft.drainage)} label="Drainage" />
+              
+              {PRESET_AMENITIES.map((amenity) => {
+                const isActive = draft.amenities.includes(amenity);
+                return (
+                  <button
+                    key={amenity}
+                    type="button"
+                    onClick={() => {
+                      if (isActive) {
+                        set("amenities", draft.amenities.filter((a) => a !== amenity));
+                      } else {
+                        set("amenities", [...draft.amenities, amenity]);
+                      }
+                    }}
+                    aria-pressed={isActive}
+                    className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+                      isActive ? "bg-brand text-white" : "bg-paper-soft text-ink-soft hover:bg-paper-line"
+                    }`}
+                  >
+                    {isActive && <Check className="h-4 w-4" aria-hidden />}
+                    {amenity}
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>
 
-        <div className="flex gap-3 border-t border-paper-line p-4">
+        <div className="flex shrink-0 gap-3 border-t border-paper-line p-4">
           <button type="button" onClick={reset} className="rounded-full border border-paper-line px-5 py-3 text-sm font-semibold text-ink-soft hover:bg-paper-soft">
             Reset
           </button>
@@ -258,7 +319,7 @@ export function FilterBar({
             value={draft.q}
             onChange={(e) => set("q", e.target.value)}
             placeholder="Search plots, locations, or property ID…"
-            className="h-12 w-full rounded-full border border-paper-line bg-white pl-10 pr-4 text-sm outline-none ring-brand focus:ring-2"
+            className="h-12 w-full rounded-full border border-paper-line bg-white pl-10 pr-4 text-base sm:text-sm outline-none ring-brand focus:ring-2"
             aria-label="Search properties"
           />
         </form>
@@ -277,7 +338,7 @@ export function FilterBar({
           )}
         </button>
       </div>
-      {open && sheet}
+      {open && mounted && createPortal(sheet, document.body)}
     </div>
   );
 }

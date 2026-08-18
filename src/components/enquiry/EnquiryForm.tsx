@@ -17,7 +17,7 @@ import { track } from "@/lib/analytics";
 const initialState: EnquiryState = { ok: false };
 
 const inputCls =
-  "h-12 w-full rounded-xl border border-paper-line bg-white px-4 text-sm outline-none ring-brand focus:ring-2";
+  "h-12 w-full rounded-xl border border-paper-line bg-white px-4 text-base sm:text-sm outline-none ring-brand focus:ring-2";
 const labelCls = "mb-1.5 block text-sm font-medium text-ink-soft";
 
 export function EnquiryForm({ defaultProperty, compact = false }: { defaultProperty?: string; compact?: boolean }) {

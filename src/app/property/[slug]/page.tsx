@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -92,11 +93,11 @@ function Section({
 }: {
   id?: string;
   title: string;
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  icon: LucideIcon;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 border-t border-paper-line py-8 first:border-t-0">
+    <section id={id} className="scroll-mt-24 border-t border-paper-line py-6 sm:py-8 first:border-t-0">
       <h2 className="flex items-center gap-2 text-lg font-bold">
         <Icon className="h-5 w-5 text-brand" aria-hidden />
         {title}
@@ -142,7 +143,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
-      <div className="relative mt-4 overflow-hidden rounded-2xl bg-paper-soft">
+      <div className="relative -mx-4 overflow-hidden bg-paper-soft sm:mx-0 sm:mt-2 sm:rounded-2xl">
         <div className="relative aspect-[16/9] max-h-[520px] w-full sm:aspect-[16/7]">
           {cover ? (
             <SmartImage src={cover.url} alt={cover.alt_text ?? p.title} sizes="100vw" priority className="object-cover" />
@@ -165,13 +166,13 @@ export default async function PropertyPage({ params }: { params: { slug: string 
       </div>
 
       {/* Sticky action bar (mobile) */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-line bg-white/95 p-3 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-line bg-white/95 p-3 backdrop-blur shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:hidden">
         <div className="mx-auto flex max-w-md items-center gap-2">
-          <WhatsAppButton propertyId={p.property_id} propertyUuid={p.id} size="lg" className="flex-[1.2]" label="WhatsApp" />
-          <CallButton propertyUuid={p.id} size="lg" className="flex-1" />
+          <WhatsAppButton propertyId={p.property_id} propertyUuid={p.id} size="md" className="flex-1" label="WhatsApp" />
+          <CallButton propertyUuid={p.id} size="md" className="flex-1" />
           <a
             href="#enquire"
-            className="flex h-12 flex-1 items-center justify-center rounded-full bg-accent px-3 text-sm font-semibold text-white hover:opacity-90"
+            className="flex flex-1 items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
           >
             Enquire
           </a>
@@ -201,13 +202,35 @@ export default async function PropertyPage({ params }: { params: { slug: string 
             <p className="text-xs text-ink-faint">Facing</p>
             <p className="mt-0.5 font-semibold">{p.facing ?? "—"}</p>
           </div>
+          {p.open_sites != null && (
+            <div className="rounded-xl border border-brand/30 bg-brand-soft p-3 shadow-card sm:col-span-4">
+              <p className="text-xs text-brand-dark font-medium">Open Sites Around Property</p>
+              <p className="mt-0.5 font-bold text-brand-dark">{p.open_sites} {p.open_sites === 1 ? "site" : "sites"}</p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Description */}
       {p.description && <p className="mt-6 max-w-3xl leading-relaxed text-ink-soft">{p.description}</p>}
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+      {/* Amenities */}
+      {p.amenities && p.amenities.length > 0 && (
+        <div className="mt-6">
+          <h2 className="flex items-center gap-2 text-base font-bold">
+            <MapPin className="h-4 w-4 text-brand" aria-hidden /> Nearby Amenities
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {p.amenities.map((amenity) => (
+              <span key={amenity} className="inline-flex items-center rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-sm font-medium text-brand-dark">
+                {amenity}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:gap-10">
         <div>
           {/* Photography */}
           <Section id="gallery" title="Photos & Drone Views" icon={MapPin}>
@@ -436,9 +459,9 @@ export default async function PropertyPage({ params }: { params: { slug: string 
           <CallButton propertyUuid={p.id} size="lg" />
           <Link
             href="/properties"
-            className="inline-flex h-12 items-center gap-2 rounded-full border border-paper-line px-5 text-sm font-semibold text-ink-soft hover:bg-paper-soft"
+            className="inline-flex items-center gap-2 rounded-full border border-paper-line px-5 py-3 text-base font-semibold text-ink-soft hover:bg-paper-soft"
           >
-            Browse more properties <ArrowRight className="h-4 w-4" aria-hidden />
+            Browse more properties <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
         </div>
       </section>

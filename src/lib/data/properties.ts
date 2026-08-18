@@ -26,11 +26,19 @@ export interface ListingFilters {
   electricity?: boolean;
   water?: boolean;
   drainage?: boolean;
+  openSites?: number;
+  amenities?: string[];
 }
 
 function normalize(v: string | string[] | undefined): string | undefined {
   if (Array.isArray(v)) return v[0];
   return v;
+}
+
+function getArray(v: string | string[] | undefined): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  return v.split(",").filter(Boolean);
 }
 
 export function parseListingFilters(searchParams: Record<string, string | string[] | undefined>): ListingFilters {
@@ -52,6 +60,8 @@ export function parseListingFilters(searchParams: Record<string, string | string
     electricity: normalize(searchParams.electricity) ? bool(normalize(searchParams.electricity)) : undefined,
     water: normalize(searchParams.water) ? bool(normalize(searchParams.water)) : undefined,
     drainage: normalize(searchParams.drainage) ? bool(normalize(searchParams.drainage)) : undefined,
+    openSites: num(normalize(searchParams.open_sites)),
+    amenities: getArray(searchParams.amenities).length > 0 ? getArray(searchParams.amenities) : undefined,
   };
 }
 
@@ -68,6 +78,8 @@ export function countActiveFilters(f: ListingFilters): number {
   if (f.electricity) n += 1;
   if (f.water) n += 1;
   if (f.drainage) n += 1;
+  if (f.openSites) n += 1;
+  if (f.amenities && f.amenities.length > 0) n += f.amenities.length;
   return n;
 }
 
@@ -93,6 +105,14 @@ function applyFilters(bundles: PropertyBundle[], f: ListingFilters): PropertyBun
     if (f.electricity && util?.electricity !== "available") return false;
     if (f.water && util?.water !== "available") return false;
     if (f.drainage && util?.drainage !== "available") return false;
+    // Open sites filter
+    if (f.openSites != null && (p.open_sites == null || p.open_sites < f.openSites)) return false;
+    // Amenities filter (must have ALL selected amenities)
+    if (f.amenities && f.amenities.length > 0) {
+      if (!p.amenities || p.amenities.length === 0) return false;
+      const hasAll = f.amenities.every(a => p.amenities!.includes(a));
+      if (!hasAll) return false;
+    }
     if (q) {
       const haystack = [
         p.title,
@@ -114,7 +134,7 @@ function applyFilters(bundles: PropertyBundle[], f: ListingFilters): PropertyBun
 
 async function bundlesFromSupabase(): Promise<PropertyBundle[]> {
   const { getSupabaseServerClient } = await import("@/lib/supabase/server");
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
 
   const { data: properties, error } = await supabase
     .from("properties")

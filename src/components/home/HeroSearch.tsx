@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS } from "@/lib/constants";
 import { track } from "@/lib/analytics";
 
@@ -23,7 +23,7 @@ export function HeroSearch({ districts }: { districts: string[] }) {
   };
 
   const fieldCls =
-    "h-12 w-full rounded-full border border-paper-line bg-white px-4 text-sm outline-none ring-brand focus:ring-2";
+    "h-12 w-full rounded-full border border-paper-line bg-white px-4 text-base sm:text-sm outline-none ring-brand focus:ring-2";
 
   return (
     <form onSubmit={submit} className="mx-auto w-full max-w-2xl" role="search">
@@ -39,21 +39,27 @@ export function HeroSearch({ districts }: { districts: string[] }) {
             aria-label="Search properties"
           />
         </div>
-        <select value={type} onChange={(e) => setType(e.target.value)} className={`${fieldCls} sm:w-44`} aria-label="Property type">
-          <option value="">All types</option>
-          {PROPERTY_TYPES.map((t) => (
-            <option key={t} value={t}>{PROPERTY_TYPE_LABELS[t]}</option>
-          ))}
-        </select>
-        <select value={district} onChange={(e) => setDistrict(e.target.value)} className={`${fieldCls} sm:w-40`} aria-label="District">
-          <option value="">All districts</option>
-          {districts.map((d) => (
-            <option key={d} value={d}>{d}</option>
-          ))}
-        </select>
+        <div className="relative sm:w-44 shrink-0">
+          <select value={type} onChange={(e) => setType(e.target.value)} className={`${fieldCls} appearance-none pr-10 bg-none`} aria-label="Property type">
+            <option value="">All types</option>
+            {PROPERTY_TYPES.map((t) => (
+              <option key={t} value={t}>{PROPERTY_TYPE_LABELS[t]}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden />
+        </div>
+        <div className="relative sm:w-40 shrink-0">
+          <select value={district} onChange={(e) => setDistrict(e.target.value)} className={`${fieldCls} appearance-none pr-10 bg-none`} aria-label="District">
+            <option value="">All districts</option>
+            {districts.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden />
+        </div>
         <button
           type="submit"
-          className="h-12 rounded-full bg-accent px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="h-12 rounded-full bg-brand px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           Search
         </button>

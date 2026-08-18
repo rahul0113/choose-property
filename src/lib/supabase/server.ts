@@ -1,35 +1,36 @@
-// Server-only Supabase client (TRD SEC-02): never import into client components.
 import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
-export function getSupabaseServerClient() {
-  const cookieStore = cookies();
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+export const getSupabaseServerClient = async () => {
+  const cookieStore = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl!,
+    supabaseKey!,
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
           } catch {
-            // Called from a Server Component — safe to ignore when middleware refreshes sessions.
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
       },
     }
   );
-}
+};
 
 export function getSupabaseAdminClient() {
-  // Server-only; the service role key bypasses RLS. Never expose to the browser.
-  return createClient(
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }

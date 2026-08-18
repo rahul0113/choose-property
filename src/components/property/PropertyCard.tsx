@@ -80,7 +80,7 @@ export function PropertyCard({ bundle }: { bundle: PropertyBundle }) {
             View Property
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
-          <WhatsAppButton propertyId={p.property_id} propertyUuid={p.id} size="sm" className="flex-1" label="WhatsApp" />
+          <WhatsAppButton propertyId={p.property_id} propertyUuid={p.id} size="md" className="flex-1" label="WhatsApp" />
         </div>
       </div>
     </article>

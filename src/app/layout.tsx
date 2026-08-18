@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
@@ -6,6 +6,13 @@ import { Footer } from "@/components/layout/Footer";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

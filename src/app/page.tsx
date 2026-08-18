@@ -17,7 +17,7 @@ import { SmartImage } from "@/components/ui/SmartImage";
 import { getDistricts, getFeaturedProperties } from "@/lib/data/properties";
 import { enquiryWaLink } from "@/lib/whatsapp";
 
-const HERO_IMG = "https://images.unsplash.com/photo-1625244724120-1fd1d34d00f6?auto=format&fit=crop&w=1600&q=70";
+const HERO_IMG = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=70";
 
 const WHY_US = [
   { icon: Ruler, title: "Exact dimensions", text: "North / South / East / West lengths, frontage and road width — not vague claims." },

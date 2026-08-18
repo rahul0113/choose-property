@@ -85,6 +85,8 @@ export interface Property {
   availability: Availability;
   facing: string | null;
   price_display: string;
+  open_sites: number | null;
+  amenities: string[] | null;
   created_by: string | null;
   published_at: string | null;
   created_at: string;

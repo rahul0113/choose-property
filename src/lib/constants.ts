@@ -181,3 +181,17 @@ export const DISCLAIMER_CLASSIFICATION =
 
 export const SITE_NAME = "Choose Property";
 export const SITE_TAGLINE = "Find the right land. Understand every detail before you visit.";
+
+export const PRESET_AMENITIES = [
+  "Parks",
+  "Hospitals",
+  "Schools",
+  "Buses",
+  "Trains",
+  "Metros",
+  "Temples",
+  "Markets / Malls",
+  "Gyms",
+  "Gated Community",
+  "Banks / ATMs",
+];

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { House, Mail, MessageCircle, Phone } from "lucide-react";
+import { Layers, Mail, MessageCircle, Phone } from "lucide-react";
 import { DISCLAIMER_MEASUREMENTS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { genericWaLink, PHONE_NUMBER } from "@/lib/whatsapp";
 
@@ -16,6 +16,8 @@ const COMPANY_LINKS = [
   { href: "/faq", label: "FAQ" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms" },
+  { href: "/disclaimer", label: "Disclaimer" },
+  { href: "/user-agreement", label: "User Agreement" },
 ];
 
 export function Footer() {
@@ -26,7 +28,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-white">
-                <House className="h-5 w-5" aria-hidden />
+                <Layers className="h-5 w-5" aria-hidden />
               </span>
               <span className="text-lg font-bold">
                 Choose <span className="text-brand">Property</span>

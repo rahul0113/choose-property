@@ -40,12 +40,13 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[560px] items-center overflow-hidden bg-ink">
-        <div className="absolute inset-0">
+      <section className="relative flex min-h-[480px] items-center bg-ink sm:min-h-[560px]">
+        {/* Background image — clip its own overflow, not the section */}
+        <div className="absolute inset-0 overflow-hidden">
           <SmartImage src={HERO_IMG} alt="Aerial view of land in Bihar" sizes="100vw" priority className="object-cover opacity-60" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/30 to-ink/70" aria-hidden />
-        <div className="relative mx-auto w-full max-w-6xl px-4 pb-40 pt-16 text-center text-white sm:px-6">
+        <div className="relative mx-auto w-full max-w-6xl px-4 pb-48 pt-16 text-center text-white sm:px-6 sm:pb-40">
           <h1 className="mx-auto max-w-2xl text-3xl font-bold leading-tight text-balance sm:text-4xl">
             Find the right land. Understand every detail before you visit.
           </h1>
@@ -75,8 +76,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured */}
-      <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
+      {/* Featured — extra top padding accounts for the overlapping search card */}
+      <section className="mx-auto max-w-6xl px-4 pt-36 sm:px-6 sm:pt-40">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold">Featured Properties</h2>

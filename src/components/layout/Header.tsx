@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, House, Menu, MessageCircle, X } from "lucide-react";
 import { genericWaLink } from "@/lib/whatsapp";
 
@@ -23,9 +23,9 @@ const NAV: Array<{ href: string; label: string; children?: Array<{ href: string;
   { href: "/contact", label: "Contact" },
 ];
 
-function Logo() {
+function Logo({ onClick }: { onClick?: () => void } = {}) {
   return (
-    <Link href="/" className="flex items-center gap-2 text-ink" aria-label="Choose Property — home">
+    <Link href="/" onClick={onClick} className="flex items-center gap-2 text-ink" aria-label="Choose Property — home">
       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-white">
         <House className="h-5 w-5" aria-hidden />
       </span>
@@ -42,6 +42,18 @@ export function Header() {
   const [propsOpen, setPropsOpen] = useState(false);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-paper-line bg-white/95 backdrop-blur">
@@ -126,15 +138,15 @@ export function Header() {
       {/* Mobile slide-over */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button
-            type="button"
+          {/* Backdrop — use a div for consistent rendering across browsers */}
+          <div
             className="absolute inset-0 bg-ink/40"
             onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
+            aria-hidden="true"
           />
           <div className="absolute inset-y-0 right-0 flex w-[85%] max-w-sm flex-col bg-white shadow-sheet">
             <div className="flex items-center justify-between border-b border-paper-line px-4 py-3">
-              <Logo />
+              <Logo onClick={() => setMobileOpen(false)} />
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
